@@ -44,4 +44,15 @@
       const val = document.getElementById("input").value.trim();
       let result = "알 수 없는 선택입니다.";
 
-      fo
+      for (let key in keywordMap) {
+        if (val.includes(key)) {
+          result = keywordMap[key];
+          break;
+        }
+      }
+
+      document.getElementById("result").innerText = result;
+    }
+  </script>
+</body>
+</html>
