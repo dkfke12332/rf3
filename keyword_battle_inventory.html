@@ -1,0 +1,174 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>탐색 + 전투 + 인벤토리</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background-color: #f0f0f0;
+    }
+    #log {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      min-height: 200px;
+    }
+    #inventory {
+      background: #fff;
+      padding: 1rem;
+      border-radius: 10px;
+      margin-top: 1rem;
+    }
+    input, button {
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>⚔️ 키워드 탐험 시스템 (전투 & 인벤토리 포함)</h1>
+
+  <div id="log">
+    <p>어디로 향하시겠습니까?</p>
+    <ul>
+      <li>어둠</li>
+      <li>수풀</li>
+    </ul>
+  </div>
+
+  <input type="text" id="input" placeholder="예: 어둠 속으로 간다">
+  <button onclick="handleInput()">입력</button>
+
+  <div id="inventory">
+    <strong>🎒 인벤토리</strong>
+    <ul id="invList"></ul>
+  </div>
+
+  <script>
+    let inventory = [];
+    let playerHP = 10;
+    let inBattle = false;
+    let monster = null;
+
+    const story = {
+      "어둠": {
+        설명: "어둠 속에서 차가운 기운이 느껴집니다. 앞에는 불빛이 있습니다.",
+        선택지: ["차가운", "불빛"]
+      },
+      "차가운": {
+        설명: "서리의 정령이 나타났습니다! 전투를 시작합니다. [공격] 또는 [도망]",
+        전투: {
+          이름: "서리 정령",
+          hp: 5,
+          drop: "얼음 단검"
+        }
+      },
+      "공격": {
+        전투행동: "공격"
+      },
+      "도망": {
+        전투행동: "도망"
+      },
+      "불빛": {
+        설명: "작은 상자 발견. [열어본다]"
+      },
+      "열어본다": {
+        설명: "상자 안에서 회복약을 얻었습니다. HP +3",
+        효과: () => {
+          playerHP += 3;
+          writeToLog("❤️ HP 회복! 현재 HP: " + playerHP);
+        }
+      }
+    };
+
+    function writeToLog(html) {
+      const log = document.getElementById("log");
+      log.innerHTML += "<p>" + html + "</p>";
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function updateInventoryDisplay() {
+      document.getElementById("invList").innerHTML = inventory.map(item => "<li>" + item + "</li>").join("");
+    }
+
+    function addItem(item) {
+      if (!inventory.includes(item)) {
+        inventory.push(item);
+        updateInventoryDisplay();
+        writeToLog("🎁 아이템 획득: " + item);
+      }
+    }
+
+    function handleInput() {
+      const val = document.getElementById("input").value.trim();
+      document.getElementById("input").value = "";
+
+      if (inBattle) {
+        handleBattleAction(val);
+        return;
+      }
+
+      for (const key in story) {
+        if (val.includes(key)) {
+          const node = story[key];
+
+          if (node.설명) writeToLog("<strong>" + key + "</strong>: " + node.설명);
+          if (node.선택지) {
+            writeToLog("선택지: " + node.선택지.join(", "));
+          }
+          if (node.전투) {
+            inBattle = true;
+            monster = {
+              이름: node.전투.이름,
+              hp: node.전투.hp,
+              drop: node.전투.drop
+            };
+            writeToLog("⚔️ " + monster.이름 + "과의 전투 시작! 몬스터 HP: " + monster.hp);
+          }
+          if (node.효과) node.효과();
+          return;
+        }
+      }
+
+      writeToLog("아무 일도 일어나지 않았다...");
+    }
+
+    function handleBattleAction(action) {
+      if (!monster) return;
+
+      if (action.includes("공격")) {
+        const damage = Math.floor(Math.random() * 4) + 1; // 1~4
+        monster.hp -= damage;
+        writeToLog("💥 몬스터에게 " + damage + " 데미지를 입혔습니다. 남은 HP: " + monster.hp);
+
+        if (monster.hp <= 0) {
+          writeToLog("✅ " + monster.이름 + "을(를) 물리쳤습니다!");
+          if (monster.drop) addItem(monster.drop);
+          inBattle = false;
+          monster = null;
+        } else {
+          const retaliation = Math.floor(Math.random() * 3) + 1;
+          playerHP -= retaliation;
+          writeToLog("⚠️ 반격! 당신은 " + retaliation + " 피해를 입었습니다. 현재 HP: " + playerHP);
+        }
+      } else if (action.includes("도망")) {
+        const escape = Math.random() < 0.5;
+        if (escape) {
+          writeToLog("🏃‍♀️ 성공적으로 도망쳤습니다.");
+          inBattle = false;
+          monster = null;
+        } else {
+          writeToLog("❌ 도망에 실패했습니다! 공격당합니다.");
+          const retaliation = Math.floor(Math.random() * 3) + 1;
+          playerHP -= retaliation;
+          writeToLog("⚠️ 피해: " + retaliation + " / 현재 HP: " + playerHP);
+        }
+      }
+    }
+  </script>
+</body>
+</html>
