@@ -21,10 +21,11 @@
     <li>인벤토리 로딩중...</li>
   </ul>
 
-  <!-- ✅ Firebase SDK 경로를 상대 경로로 수정 -->
-  <script src="firebase-app.js"></script>
-  <script src="firebase-database.js"></script>
+  <!-- ✅ Firebase SDK: compat 버전 -->
+  <script src="/html/extend/firebase-app.js"></script>
+  <script src="/html/extend/firebase-database.js"></script>
 
+  <!-- ✅ 실제 로직 -->
   <script>
     window.addEventListener("DOMContentLoaded", () => {
       const firebaseConfig = {
@@ -40,7 +41,9 @@
       firebase.initializeApp(firebaseConfig);
       const db = firebase.database();
 
+      // ✅ 실시간 데이터 감지 + 콘솔 로그
       db.ref("player_status").on("value", (snapshot) => {
+        console.log("데이터 감지:", snapshot.val()); // 여기!!
         const data = snapshot.val();
         if (!data) return;
 
@@ -53,6 +56,7 @@
         document.getElementById("inventory").innerHTML = inventoryList || "<li>인벤토리 없음</li>";
       });
 
+      // ✅ 명령어 처리
       window.submitCommand = function() {
         const command = document.getElementById("command").value;
 
@@ -60,9 +64,13 @@
           const data = snapshot.val();
           let newHp = data.hp;
 
-          if (command.includes("어둠")) newHp -= 10;
-          else if (command.includes("숲")) newHp -= 5;
-          else if (command.includes("수풀")) newHp -= 3;
+          if (command.includes("어둠")) {
+            newHp -= 10;
+          } else if (command.includes("숲")) {
+            newHp -= 5;
+          } else if (command.includes("수풀")) {
+            newHp -= 3;
+          }
 
           db.ref("player_status").update({
             hp: Math.max(0, newHp)
