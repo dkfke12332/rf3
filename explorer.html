@@ -43,18 +43,19 @@
     const db = firebase.database();
 
     // 실시간 플레이어 상태 읽기
-    db.ref("player_status").on("value", (snapshot) => {
-      const data = snapshot.val();
-      if (!data) return;
+db.ref("player_status").on("value", (snapshot) => {
+  const data = snapshot.val();
+  if (!data) return;
 
-      document.getElementById("hp").innerText = `HP: ${data.hp} / ${data.maxHp}`;
+  document.getElementById("hp").innerText = `HP: ${data.hp} / ${data.maxHp}`;
 
-const inventoryList = Object.values(data.inventory)
-  .map(item => `<li>${item}</li>`)
-  .join('');
-document.getElementById("inventory").innerHTML = inventoryList;
+  const inventoryList = (data.inventory ? Object.values(data.inventory) : [])
+    .map(item => `<li>${item}</li>`)
+    .join('');
+    
+  document.getElementById("inventory").innerHTML = inventoryList || "<li>인벤토리 없음</li>";
+});
 
-    });
 
    function submitCommand() {
   const command = document.getElementById("command").value;
