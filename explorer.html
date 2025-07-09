@@ -21,7 +21,7 @@
     <li>인벤토리 로딩중...</li>
   </ul>
 
-  <!-- ✅ Firebase SDK를 로컬에서 불러옴 -->
+  <!-- ✅ Firebase SDK 경로를 상대 경로로 수정 -->
   <script src="firebase-app.js"></script>
   <script src="firebase-database.js"></script>
 
@@ -40,7 +40,6 @@
       firebase.initializeApp(firebaseConfig);
       const db = firebase.database();
 
-      // 실시간 플레이어 상태 읽기
       db.ref("player_status").on("value", (snapshot) => {
         const data = snapshot.val();
         if (!data) return;
@@ -54,21 +53,16 @@
         document.getElementById("inventory").innerHTML = inventoryList || "<li>인벤토리 없음</li>";
       });
 
-      // 명령어 처리
-      window.submitCommand = function () {
+      window.submitCommand = function() {
         const command = document.getElementById("command").value;
 
         db.ref("player_status").once("value").then(snapshot => {
           const data = snapshot.val();
           let newHp = data.hp;
 
-          if (command.includes("어둠")) {
-            newHp -= 10;
-          } else if (command.includes("숲")) {
-            newHp -= 5;
-          } else if (command.includes("수풀")) {
-            newHp -= 3;
-          }
+          if (command.includes("어둠")) newHp -= 10;
+          else if (command.includes("숲")) newHp -= 5;
+          else if (command.includes("수풀")) newHp -= 3;
 
           db.ref("player_status").update({
             hp: Math.max(0, newHp)
