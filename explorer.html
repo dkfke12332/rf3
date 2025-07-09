@@ -55,10 +55,31 @@
       document.getElementById("inventory").innerHTML = inventoryList;
     });
 
-    function submitCommand() {
-      const command = document.getElementById("command").value;
-      alert("입력한 명령어: " + command + " (반응은 아직 구현 안 됨)");
+   function submitCommand() {
+  const command = document.getElementById("command").value;
+
+  db.ref("player_status").once("value").then(snapshot => {
+    const data = snapshot.val();
+    let newHp = data.hp;
+
+    // 명령어에 따라 HP 깎기
+    if (command.includes("어둠")) {
+      newHp -= 10;
+    } else if (command.includes("숲")) {
+      newHp -= 5;
+    } else if (command.includes("수풀")) {
+      newHp -= 3;
     }
+
+    // HP를 Firebase에 업데이트
+    db.ref("player_status").update({
+      hp: Math.max(0, newHp)
+    });
+
+    document.getElementById("command").value = "";
+  });
+}
+
   </script>
 </body>
 </html>
