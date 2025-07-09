@@ -56,4 +56,29 @@
     }
   </script>
 </body>
+  <div id="hp-display"></div>
+<div id="inventory-display"></div>
+
+<script>
+async function loadPlayerStatus() {
+  try {
+    const res = await fetch("https://dkfke12332.github.io/rf3/player_status.json");
+    const data = await res.json();
+
+    // HP 출력
+    document.getElementById("hp-display").innerText = `HP: ${data.hp} / ${data.maxHp}`;
+
+    // 인벤토리 출력
+    const invList = data.inventory.map(item => `<li>${item}</li>`).join("");
+    document.getElementById("inventory-display").innerHTML = `<ul>${invList}</ul>`;
+  } catch (error) {
+    console.error("플레이어 상태 불러오기 실패:", error);
+  }
+}
+
+// 5초마다 자동 갱신
+setInterval(loadPlayerStatus, 5000);
+loadPlayerStatus();
+</script>
+
 </html>
