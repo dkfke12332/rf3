@@ -49,10 +49,11 @@
 
       document.getElementById("hp").innerText = `HP: ${data.hp} / ${data.maxHp}`;
 
-      const inventoryList = data.inventory
-        .map(item => `<li>${item}</li>`)
-        .join('');
-      document.getElementById("inventory").innerHTML = inventoryList;
+const inventoryList = Object.values(data.inventory)
+  .map(item => `<li>${item}</li>`)
+  .join('');
+document.getElementById("inventory").innerHTML = inventoryList;
+
     });
 
    function submitCommand() {
