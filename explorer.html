@@ -2,20 +2,31 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>아보카도 에디션</title>
+  <title>아보카도 탐색기</title>
 </head>
-<body>
+<body style="background-color:#f2fbdc; font-family:sans-serif;">
 
-  <!-- 스탯 표시 영역 -->
-  <p id="hp">HP: 불러오는 중...</p>
-  <ul id="inventory">불러오는 중...</ul>
+  <h2>조사를 시작합니다. 어디로 향하시겠습니까?</h2>
+  <ol>
+    <li>수풀</li>
+    <li>숲</li>
+    <li>어둠</li>
+  </ol>
 
-  <!-- 여기에 게임 입력칸, 버튼 등도 있겠지 -->
+  <input type="text" placeholder="예: 3. 어둠 속으로 간다" id="command">
+  <button onclick="submitCommand()">입력</button>
 
-  <!-- 🔥 여기가 Firebase 연결 코드 들어가는 위치 -->
+  <p id="hp">HP: 로딩중...</p>
+  <ul id="inventory">
+    <li>인벤토리 로딩중...</li>
+  </ul>
+
+  <!-- Firebase SDK 추가 -->
   <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-database-compat.js"></script>
+
   <script>
+    // Firebase 설정
     const firebaseConfig = {
       apiKey: "AIzaSyB_NTh9vwP0JEN2LRD9nDWwSoSLXLYgh5A",
       authDomain: "avocado-edition.firebaseapp.com",
@@ -27,15 +38,27 @@
       measurementId: "G-SRH2QEDC5G"
     };
 
+    // Firebase 초기화
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    // 실시간 플레이어 상태 읽기
     db.ref("player_status").on("value", (snapshot) => {
       const data = snapshot.val();
+      if (!data) return;
+
       document.getElementById("hp").innerText = `HP: ${data.hp} / ${data.maxHp}`;
-      document.getElementById("inventory").innerHTML =
-        data.inventory.map(item => `<li>${item}</li>`).join('');
+
+      const inventoryList = data.inventory
+        .map(item => `<li>${item}</li>`)
+        .join('');
+      document.getElementById("inventory").innerHTML = inventoryList;
     });
+
+    function submitCommand() {
+      const command = document.getElementById("command").value;
+      alert("입력한 명령어: " + command + " (반응은 아직 구현 안 됨)");
+    }
   </script>
 </body>
 </html>
