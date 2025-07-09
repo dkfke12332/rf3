@@ -1,84 +1,41 @@
-
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>탐색 시스템</title>
-  <style>
-    body {
-      background-color: #eaf5d5;
-      font-family: sans-serif;
-      padding: 30px;
-    }
-    input, button {
-      padding: 8px;
-      margin-top: 10px;
-      font-size: 1rem;
-    }
-    #result {
-      margin-top: 20px;
-      font-weight: bold;
-    }
-  </style>
+  <title>아보카도 에디션</title>
 </head>
 <body>
-  <h2>조사를 시작합니다. 어디로 향하시겠습니까?</h2>
-  <ol>
-    <li>수풀</li>
-    <li>숲</li>
-    <li>어둠</li>
-  </ol>
 
-  <input type="text" id="input" placeholder="예: 3. 어둠 속으로 간다">
-  <button onclick="checkKeyword()">입력</button>
+  <!-- 스탯 표시 영역 -->
+  <p id="hp">HP: 불러오는 중...</p>
+  <ul id="inventory">불러오는 중...</ul>
 
-  <div id="result"></div>
+  <!-- 여기에 게임 입력칸, 버튼 등도 있겠지 -->
 
+  <!-- 🔥 여기가 Firebase 연결 코드 들어가는 위치 -->
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-database-compat.js"></script>
   <script>
-    const keywordMap = {
-      "어둠": "당신은 깊은 어둠 속에서 차가운 기운을 느낍니다. 앞에는 희미한 불빛이 있습니다.",
-      "수풀": "수풀 속에서 바스락거리는 소리가 들립니다. 무언가가 숨어 있는 것 같습니다.",
-      "숲": "숲속에는 오래된 나무와 덩굴이 얽혀 있고, 바닥에는 무언가 묻혀 있습니다."
+    const firebaseConfig = {
+      apiKey: "AIzaSyB_NTh9vwP0JEN2LRD9nDWwSoSLXLYgh5A",
+      authDomain: "avocado-edition.firebaseapp.com",
+      databaseURL: "https://avocado-edition-default-rtdb.firebaseio.com",
+      projectId: "avocado-edition",
+      storageBucket: "avocado-edition.firebasestorage.app",
+      messagingSenderId: "821846267054",
+      appId: "1:821846267054:web:593611ca5acee5247d493f",
+      measurementId: "G-SRH2QEDC5G"
     };
 
-    function checkKeyword() {
-      const val = document.getElementById("input").value.trim();
-      let result = "알 수 없는 선택입니다.";
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-      for (let key in keywordMap) {
-        if (val.includes(key)) {
-          result = keywordMap[key];
-          break;
-        }
-      }
-
-      document.getElementById("result").innerText = result;
-    }
+    db.ref("player_status").on("value", (snapshot) => {
+      const data = snapshot.val();
+      document.getElementById("hp").innerText = `HP: ${data.hp} / ${data.maxHp}`;
+      document.getElementById("inventory").innerHTML =
+        data.inventory.map(item => `<li>${item}</li>`).join('');
+    });
   </script>
 </body>
-  <div id="hp-display"></div>
-<div id="inventory-display"></div>
-
-<script>
-async function loadPlayerStatus() {
-  try {
-    const res = await fetch("https://dkfke12332.github.io/rf3/player_status.json");
-    const data = await res.json();
-
-    // HP 출력
-    document.getElementById("hp-display").innerText = `HP: ${data.hp} / ${data.maxHp}`;
-
-    // 인벤토리 출력
-    const invList = data.inventory.map(item => `<li>${item}</li>`).join("");
-    document.getElementById("inventory-display").innerHTML = `<ul>${invList}</ul>`;
-  } catch (error) {
-    console.error("플레이어 상태 불러오기 실패:", error);
-  }
-}
-
-// 5초마다 자동 갱신
-setInterval(loadPlayerStatus, 5000);
-loadPlayerStatus();
-</script>
-
 </html>
