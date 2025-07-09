@@ -21,10 +21,11 @@
     <li>인벤토리 로딩중...</li>
   </ul>
 
-  <!-- Firebase SDK 추가 -->
+  <!-- ✅ Firebase SDK: 반드시 순서 지켜야 함 -->
   <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-database-compat.js"></script>
 
+  <!-- ✅ Firebase 초기화 및 탐색기 로직 -->
   <script>
     // Firebase 설정
     const firebaseConfig = {
@@ -43,45 +44,41 @@
     const db = firebase.database();
 
     // 실시간 플레이어 상태 읽기
-db.ref("player_status").on("value", (snapshot) => {
-  const data = snapshot.val();
-  if (!data) return;
+    db.ref("player_status").on("value", (snapshot) => {
+      const data = snapshot.val();
+      if (!data) return;
 
-  document.getElementById("hp").innerText = `HP: ${data.hp} / ${data.maxHp}`;
+      document.getElementById("hp").innerText = `HP: ${data.hp} / ${data.maxHp}`;
 
-  const inventoryList = (data.inventory ? Object.values(data.inventory) : [])
-    .map(item => `<li>${item}</li>`)
-    .join('');
-    
-  document.getElementById("inventory").innerHTML = inventoryList || "<li>인벤토리 없음</li>";
-});
-
-
-   function submitCommand() {
-  const command = document.getElementById("command").value;
-
-  db.ref("player_status").once("value").then(snapshot => {
-    const data = snapshot.val();
-    let newHp = data.hp;
-
-    // 명령어에 따라 HP 깎기
-    if (command.includes("어둠")) {
-      newHp -= 10;
-    } else if (command.includes("숲")) {
-      newHp -= 5;
-    } else if (command.includes("수풀")) {
-      newHp -= 3;
-    }
-
-    // HP를 Firebase에 업데이트
-    db.ref("player_status").update({
-      hp: Math.max(0, newHp)
+      const inventoryList = (data.inventory ? Object.values(data.inventory) : [])
+        .map(item => `<li>${item}</li>`)
+        .join('');
+        
+      document.getElementById("inventory").innerHTML = inventoryList || "<li>인벤토리 없음</li>";
     });
 
-    document.getElementById("command").value = "";
-  });
-}
+    // 명령어 처리
+    function submitCommand() {
+      const command = document.getElementById("command").value;
 
-  </script>
-</body>
-</html>
+      db.ref("player_status").once("value").then(snapshot => {
+        const data = snapshot.val();
+        let newHp = data.hp;
+
+        // 명령어에 따라 HP 감소
+        if (command.includes("어둠")) {
+          newHp -= 10;
+        } else if (command.includes("숲")) {
+          newHp -= 5;
+        } else if (command.includes("수풀")) {
+          newHp -= 3;
+        }
+
+        // Firebase에 HP 업데이트
+        db.ref("player_status").update({
+          hp: Math.max(0, newHp)
+        });
+
+        document.getElementById("command").value = "";
+      });
+    }
