@@ -21,11 +21,10 @@
     <li>인벤토리 로딩중...</li>
   </ul>
 
-  <!-- ✅ Firebase SDK: 반드시 아래 순서로 위치 -->
-  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-database-compat.js"></script>
+  <!-- ✅ Firebase SDK (jsDelivr로 대체됨) -->
+  <script src="https://cdn.jsdelivr.net/npm/firebase@9.24.0/compat/firebase-app.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/firebase@9.24.0/compat/firebase-database.js"></script>
 
-  <!-- ✅ 아래 코드: 반드시 SDK 로딩 이후 실행되도록 위치 -->
   <script>
     window.addEventListener("DOMContentLoaded", () => {
       const firebaseConfig = {
@@ -56,7 +55,7 @@
       });
 
       // 명령어 처리
-      window.submitCommand = function() {
+      window.submitCommand = function () {
         const command = document.getElementById("command").value;
 
         db.ref("player_status").once("value").then(snapshot => {
