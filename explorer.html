@@ -21,29 +21,27 @@
     <li>인벤토리 로딩중...</li>
   </ul>
 
-  <!-- ✅ Firebase SDK: 반드시 순서 지켜야 함 -->
+  <!-- ✅ Firebase SDK 추가: 순서 중요 -->
   <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.24.0/firebase-database-compat.js"></script>
 
-  <!-- ✅ Firebase 초기화 및 탐색기 로직 -->
+  <!-- ✅ SDK 불러온 후 실행 -->
   <script>
-    // Firebase 설정
     const firebaseConfig = {
       apiKey: "AIzaSyB_NTh9vwP0JEN2LRD9nDWwSoSLXLYgh5A",
       authDomain: "avocado-edition.firebaseapp.com",
       databaseURL: "https://avocado-edition-default-rtdb.firebaseio.com",
       projectId: "avocado-edition",
-      storageBucket: "avocado-edition.firebasestorage.app",
+      storageBucket: "avocado-edition.appspot.com",
       messagingSenderId: "821846267054",
-      appId: "1:821846267054:web:593611ca5acee5247d493f",
-      measurementId: "G-SRH2QEDC5G"
+      appId: "1:821846267054:web:593611ca5acee5247d493f"
     };
 
     // Firebase 초기화
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // 실시간 플레이어 상태 읽기
+    // 실시간 HP 및 인벤토리 반영
     db.ref("player_status").on("value", (snapshot) => {
       const data = snapshot.val();
       if (!data) return;
@@ -53,7 +51,7 @@
       const inventoryList = (data.inventory ? Object.values(data.inventory) : [])
         .map(item => `<li>${item}</li>`)
         .join('');
-        
+
       document.getElementById("inventory").innerHTML = inventoryList || "<li>인벤토리 없음</li>";
     });
 
@@ -65,7 +63,6 @@
         const data = snapshot.val();
         let newHp = data.hp;
 
-        // 명령어에 따라 HP 감소
         if (command.includes("어둠")) {
           newHp -= 10;
         } else if (command.includes("숲")) {
@@ -74,7 +71,6 @@
           newHp -= 3;
         }
 
-        // Firebase에 HP 업데이트
         db.ref("player_status").update({
           hp: Math.max(0, newHp)
         });
@@ -82,3 +78,6 @@
         document.getElementById("command").value = "";
       });
     }
+  </script>
+</body>
+</html>
